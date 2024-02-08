@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"github.com/example/golang-test/config"
+	// "github.com/example/golang-test/pkg/api/routes"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -108,6 +109,6 @@ func main() {
 	// 	ctx.JSON(http.StatusOK, gin.H{"status": "success", "message": value})
 	// })
 	// router.Run()
-	log.Fatal(server.Run(":" + config.Port))
+	server.Run(":" + config.Port)
+	// routes.UserRoute(server)
 }
-

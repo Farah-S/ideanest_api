@@ -57,28 +57,3 @@ func LoadAppConfig(path string) (config AppConfig, err error) {
 	err = viper.Unmarshal(&config)
 	return
 }
-
-// func read_configuration(config utils.Configuration) utils.Configuration {
-
-// 	mongoUri := os.Getenv("MONGODB_URL")
-// 	port := os.Getenv("SERVER_PORT")
-// 	dbName := os.Getenv("DB_NAME")
-// 	collection := os.Getenv("COLLECTION")
-// 	appName := os.Getenv("APP_NAME")
-
-// 	if mongoUri != "" || port != "" || dbName != "" || collection != "" || appName != "" {
-// 		return utils.Configuration{
-// 			App:      utils.Application{Name: appName},
-// 			Database: utils.DatabaseSetting{Url: mongoUri, DbName: dbName, Collection: collection},
-// 			Server:   utils.ServerSettings{Port: port},
-// 		}
-// 	}
-
-// 	// return config.yml variable
-// 	return utils.Configuration{
-// 		App:      utils.Application{Name: config.App.Name},
-// 		Database: utils.DatabaseSetting{Url: config.Database.Url, DbName: config.Database.DbName, Collection: config.Database.Collection},
-// 		Server:   utils.ServerSettings{Port: config.Server.Port},
-// 	}
-// }
-
