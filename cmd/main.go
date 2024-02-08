@@ -5,10 +5,11 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"net/http"
+	// "net/http"
 
 	"github.com/example/golang-test/config"
-	// "github.com/example/golang-test/pkg/api/routes"
+	"github.com/example/golang-test/pkg/api/routes"
+
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -86,29 +87,7 @@ func main() {
 	} else if err != nil {
 		panic(err)
 	}
-	print(value)
-	// server := gin.Default()
-	server.LoadHTMLGlob("pkg/api/pages/*")
-	server.GET("/api", func(c *gin.Context) {
+	fmt.Println(value)
 	
-	// Call the HTML method of the Context to render a template
-	c.HTML(
-		// Set the HTTP status to 200 (OK)
-		http.StatusOK,
-		// Use the index.html template
-		"index.html",
-		// Pass the data that the page uses (in this case, 'title')
-		gin.H{
-			"title": "Home Page",
-		},
-	)
-	// c.JSON(http.StatusOK, gin.H{"status": "success", "message": value})
-	})
-	// apirouter := server.Group("/api")
-	// apirouter.GET("/healthchecker", func(ctx *gin.Context) {
-	// 	ctx.JSON(http.StatusOK, gin.H{"status": "success", "message": value})
-	// })
-	// router.Run()
-	server.Run(":" + config.Port)
-	// routes.UserRoute(server)
+	routes.IndexRoute(server,config.Port)
 }
