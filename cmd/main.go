@@ -27,7 +27,7 @@ var (
 func init() {
 
 	// ? Load the .env variables
-	config, err := config.LoadConfig(".")
+	config, err := config.LoadDBConfig("./config/")
 	if err != nil {
 		log.Fatal("Could not load environment variables", err)
 	}
@@ -70,7 +70,7 @@ func init() {
 }
 
 func main() {
-	config, err := config.LoadConfig(".")
+	config, err := config.LoadAppConfig(".")
 
 	if err != nil {
 		log.Fatal("Could not load config", err)
@@ -86,9 +86,9 @@ func main() {
 		panic(err)
 	}
 	print(value)
-	router := gin.Default()
-	router.LoadHTMLGlob("pkg/api/pages/*")
-	router.GET("/api", func(c *gin.Context) {
+	// server := gin.Default()
+	server.LoadHTMLGlob("pkg/api/pages/*")
+	server.GET("/api", func(c *gin.Context) {
 	
 	// Call the HTML method of the Context to render a template
 	c.HTML(
@@ -107,7 +107,7 @@ func main() {
 	// apirouter.GET("/healthchecker", func(ctx *gin.Context) {
 	// 	ctx.JSON(http.StatusOK, gin.H{"status": "success", "message": value})
 	// })
-	router.Run()
+	// router.Run()
 	log.Fatal(server.Run(":" + config.Port))
 }
 
