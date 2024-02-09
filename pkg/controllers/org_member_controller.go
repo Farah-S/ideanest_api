@@ -28,6 +28,7 @@ type SignedInUser struct {
     ID        primitive.ObjectID
 	AccessLevel string
 	BearerToken string
+	Invites		[]primitive.ObjectID
 }
 
 func CreateUser() gin.HandlerFunc {
@@ -76,6 +77,7 @@ func CreateUser() gin.HandlerFunc {
             Email: user.Email,
 			Password: hashedPass,
 			AccessLevel: user.AccessLevel,
+			Invites: []primitive.ObjectID{},
         }
 		
         _, err = memberCollection.InsertOne(ctx, newUser)
@@ -145,6 +147,7 @@ func GetUser() gin.HandlerFunc {
 			Email: foundUser.Email,
 			BearerToken: token,
 			AccessLevel: foundUser.AccessLevel,
+			Invites: foundUser.Invites,
 		}
 		userJSON, err := json.Marshal(cookieUser)
 		if err != nil {

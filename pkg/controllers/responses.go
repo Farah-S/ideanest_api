@@ -1,6 +1,9 @@
 package controllers
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
+import (
+	"github.com/example/golang-test/pkg/database/mongodb/models"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
 
 type MessageResponse struct {
 	Message string `json:"message"`
@@ -15,3 +18,11 @@ type TokensResponse struct {
 type IDResponse struct {
 	OrganizationID primitive.ObjectID `json:"organization_id"`
 }
+
+type OneOrgResponse struct {
+	Id       primitive.ObjectID `bson:"_id" json:"_id,omitempty"`
+	Name                string               `form:"name" json:"name,omitempty"  validate:"required"`
+	Description         string               `form:"description" json:"description,omitempty"  validate:"required"`
+	OrganizationMembers []models.OrganizationMember `json:"organization_members,omitempty"`
+}
+

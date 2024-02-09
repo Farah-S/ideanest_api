@@ -25,6 +25,7 @@ type OrganizationMember struct {
 	Email       string `form:"email,omitempty" json:"email,omitempty" validate:"required"`
 	Password    string `form:"password,omitempty" json:"password,omitempty" validate:"required"`
 	AccessLevel string `form:"access_level" json:"access_level"`
+	Invites []primitive.ObjectID `json:"invites,omitempty"`
 }
 
 
