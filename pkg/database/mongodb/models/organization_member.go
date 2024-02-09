@@ -20,10 +20,11 @@ func (r *OrganizationMember) Marshal() ([]byte, error) {
 }
 
 type OrganizationMember struct {
-	Id       primitive.ObjectID `json:"id,omitempty"`
-	Name        string `json:"name,omitempty" validate:"required"`
-	Email       string `json:"email,omitempty" validate:"required"`
-	Password    string `json:"password,omitempty" validate:"required"`
-	AccessLevel string `json:"access_level"`
+	Id       primitive.ObjectID `bson:"_id" json:"_id,omitempty"`
+	Name        string `form:"name,omitempty" json:"name,omitempty" validate:"required"`
+	Email       string `form:"email,omitempty" json:"email,omitempty" validate:"required"`
+	Password    string `form:"password,omitempty" json:"password,omitempty" validate:"required"`
+	AccessLevel string `form:"access_level" json:"access_level"`
 }
+
 

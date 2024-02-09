@@ -10,12 +10,13 @@
 <body>
     <h1>Signup</h1>
     <form action="/signup" method="post">
-        <label for="username">Username:</label><br>
-        <input type="text" id="username" name="username"><br>
+        <label for="name">Name:</label><br>
+        <input type="text" id="name" name="name" required><br>
         <label for="email">Email:</label><br>
-        <input type="email" id="email" name="email"><br>
+        <input type="email" id="email" name="email" required><br>
         <label for="password">Password:</label><br>
-        <input type="password" id="password" name="password"><br>
+        <input type="password" id="password" name="password" required><br>
+        <input type="hidden" name="access_level" value="user">
         <input type="submit" value="Signup">
     </form>
 </body>
