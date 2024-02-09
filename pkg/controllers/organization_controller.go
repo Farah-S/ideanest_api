@@ -32,7 +32,7 @@ func CreateOrg() gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, MessageResponse{Message: "bind error " + err.Error()})
 			return
 		}
-		// log.Fatal(c.)
+
 		//validate the request body
 		if err := c.ShouldBind(&org); err != nil {
 			c.JSON(http.StatusBadRequest, MessageResponse{Message: "bind error " + err.Error()})
@@ -52,7 +52,6 @@ func CreateOrg() gin.HandlerFunc {
 		err := orgCollection.FindOne(ctx, filter).Decode(&existingOrg)
 
 		if err != mongo.ErrNoDocuments {
-			// c.Redirect(http.StatusSeeOther,"/api/signup")
 			c.JSON(http.StatusInternalServerError, MessageResponse{Message: "organization already exists"})
 			return
 		}
@@ -94,10 +93,7 @@ func GetOrganization() gin.HandlerFunc {
 		filter := bson.M{"_id": objectID}
 		err = orgCollection.FindOne(ctx, filter).Decode(&org)
 
-		// orgs, err :=orgCollection.Find(ctx,nil)
-        //  memberCollection.FindOne(ctx, bson.M{"email": user.Email}).Decode(&foundUser)
         if err != nil {
-            // c.JSON(http.StatusInternalServerError, gin.H{"error": "incorrect email"})
             c.JSON(http.StatusBadRequest, MessageResponse{Message: err.Error()})
 			return
         }
@@ -117,24 +113,17 @@ func GetAllOrganizations() gin.HandlerFunc {
        
 		//pass these options to the Find method
 		findOptions := options.Find()
-		
-		//Define an array in which you can store the decoded documents
-		// var results []Member
 
 		//Passing the bson.D{{}} as the filter matches  documents in the collection
     	orgs, err := orgCollection.Find(context.TODO(), bson.D{{}}, findOptions)
-
-		// orgs, err :=orgCollection.Find(ctx,nil)
-        //  memberCollection.FindOne(ctx, bson.M{"email": user.Email}).Decode(&foundUser)
+		
         defer cancel()
         if err != nil {
-            // c.JSON(http.StatusInternalServerError, gin.H{"error": "incorrect email"})
             c.JSON(http.StatusBadRequest, MessageResponse{Message: err.Error()})
 			return
         }
 		var results []models.Organization
 		if err := orgs.All(context.Background(), &results); err != nil {
-			// panic(err)
 	        c.JSON(http.StatusBadRequest, MessageResponse{Message: err.Error()})
 
 		}
@@ -155,7 +144,6 @@ func GetAllOrganizations() gin.HandlerFunc {
 
 func getMembersOfOrg(ids []primitive.ObjectID, c *gin.Context)  []MemberResponse{
 	
-	// var members []models.OrganizationMember
 	var results []MemberResponse
 
 	filter := bson.M{"_id": bson.M{"$in": ids}}
@@ -163,18 +151,12 @@ func getMembersOfOrg(ids []primitive.ObjectID, c *gin.Context)  []MemberResponse
 	cursor, err := memberCollection.Find(context.Background(), filter)
 	if err != nil {
         c.JSON(http.StatusBadRequest, MessageResponse{Message: err.Error()})
-
-		// panic(err)
 	}
 
 	if err := cursor.All(context.Background(), &results); err != nil {
-		// panic(err)
         c.JSON(http.StatusBadRequest, MessageResponse{Message: err.Error()})
 	}
 
-	// for i := 0; i < len(members); i++ {
-	// 	results = append(results, MemberResponse{Name: members[i].Name, Email: members[i].Email, AccessLevel: members[i].AccessLevel})
-	// }
 	return results
 }
 
@@ -254,7 +236,6 @@ func InviteUser()  gin.HandlerFunc{
 		objectID, err := primitive.ObjectIDFromHex(id)
 		defer cancel()
 		if err != nil {
-            // c.JSON(http.StatusInternalServerError, gin.H{"error": "incorrect email"})
             c.JSON(http.StatusBadRequest, MessageResponse{Message: err.Error()})
 			return
         }

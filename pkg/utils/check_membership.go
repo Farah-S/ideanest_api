@@ -15,7 +15,6 @@ import (
 )
 
 var orgCollection *mongo.Collection = repository.GetCollection(repository.DB, "organizations", "api_db")
-// var memberCollection *mongo.Collection = repository.GetCollection(repository.DB, "organization_members", "api_db")
 
 func IsMember(orgId primitive.ObjectID,c *gin.Context) bool {
 	userJSON, err := c.Cookie("user")
@@ -36,6 +35,7 @@ func IsMember(orgId primitive.ObjectID,c *gin.Context) bool {
 	// Define the filter to find documents with the specified value in the array field
 	filter := bson.M{"_id": orgId}
 	org:=models.Organization{}
+	
 	// Find documents in the collection that match the filter
 	err = orgCollection.FindOne(context.Background(), filter).Decode(&org)
 	if err != nil {

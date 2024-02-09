@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	// "github.com/example/golang-test/pkg/database/mongodb/models"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 

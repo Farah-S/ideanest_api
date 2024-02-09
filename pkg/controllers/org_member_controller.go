@@ -3,7 +3,6 @@ package controllers
 import (
 	"context"
 	"encoding/json"
-	// "log"
 	"net/http"
 	"time"
 
@@ -27,7 +26,7 @@ func CreateUser() gin.HandlerFunc {
         ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
         var user models.OrganizationMember
         defer cancel()
-		// log.Fatal(c.)
+
         //validate the request body
         if err := c.ShouldBind(&user); err != nil {
             c.JSON(http.StatusBadRequest, MessageResponse{Message: "bind error "+err.Error()})
@@ -47,7 +46,6 @@ func CreateUser() gin.HandlerFunc {
 		err := memberCollection.FindOne(ctx, filter).Decode(&existingUser)
 	
 		if err != mongo.ErrNoDocuments {
-			// c.Redirect(http.StatusSeeOther,"/api/signup")
 			c.JSON(http.StatusInternalServerError, MessageResponse{Message: "email already exists"})
 			return
 		} 
@@ -98,7 +96,6 @@ func GetUser() gin.HandlerFunc {
         var foundToken utils.Token
 
         if err := c.ShouldBind(&user); err != nil {
-            // c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
             c.JSON(http.StatusBadRequest, TokensResponse{Message: "error "+err.Error(), AccessToken: "", RefreshToken: ""})
         	defer cancel()
 			return
@@ -107,7 +104,6 @@ func GetUser() gin.HandlerFunc {
         err := memberCollection.FindOne(ctx, bson.M{"email": user.Email}).Decode(&foundUser)
         defer cancel()
         if err != nil {
-            // c.JSON(http.StatusInternalServerError, gin.H{"error": "incorrect email"})
             c.JSON(http.StatusBadRequest, TokensResponse{Message: "incorrect email "+err.Error(), AccessToken: "", RefreshToken: ""})
 			return
         }
@@ -115,22 +111,18 @@ func GetUser() gin.HandlerFunc {
         passwordIsValid := utils.CheckPasswordHash(user.Password, foundUser.Password)
         defer cancel()
         if passwordIsValid != true {
-            // c.JSON(http.StatusInternalServerError, "incorrect password")
             c.JSON(http.StatusBadRequest, TokensResponse{Message: "incorrect password "+err.Error(), AccessToken: "", RefreshToken: ""})
 			return
         }
 
-        // token, refreshToken, _ := utils.GenerateAllTokens(*&foundUser.Email, *&foundUser.Name, foundUser.Id, foundUser.AccessLevel)
-		err = tokenCollection.FindOne(ctx, bson.M{"member_id": foundUser.Id}).Decode(&foundToken)
+       err = tokenCollection.FindOne(ctx, bson.M{"member_id": foundUser.Id}).Decode(&foundToken)
         defer cancel()
         if err != nil {
-            // c.JSON(http.StatusInternalServerError, gin.H{"error": "incorrect email"})
             c.JSON(http.StatusBadRequest, TokensResponse{Message: "refresh token error "+err.Error(), AccessToken: "", RefreshToken: foundToken.Token})
 			return
         }
 		token:=utils.GenerateAccessToken(foundUser.Id)
 		
-        // refreshToken:=utils.UpdateRefreshToken(foundToken.ID, foundUser.Id)
 		// Serialize the user object to JSON
 		cookieUser:=utils.SignedInUser{
 			ID: foundUser.Id,
@@ -152,9 +144,6 @@ func GetUser() gin.HandlerFunc {
 		c.SetCookie("user", string(userJSON), 3600, "/", "", false, false)
 
 		c.JSON(http.StatusOK, TokensResponse{Message: "Success", AccessToken: token, RefreshToken: foundToken.Token})
-
-        // c.JSON(http.StatusOK, foundUser)
-		// c.Redirect(http.StatusOK, "/api")
     }
 }
 
@@ -175,6 +164,5 @@ func UpdateMember(member models.OrganizationMember, c *gin.Context)  {
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}
-    // c.JSON(http.StatusOK, MessageResponse{Message: "Success"})
 
 }

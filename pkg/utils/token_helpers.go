@@ -22,6 +22,7 @@ func UpdateRefreshToken(refreshTokenId  primitive.ObjectID, userId primitive.Obj
     var ctx, _ = context.WithTimeout(context.Background(), 100*time.Second)
 	newtoken:= GenerateRefreshToken(userId)
 	newtoken.ID=refreshTokenId
+
 	// Example filter and update values
 	filter := bson.M{"_id": refreshTokenId}
 	update := bson.M{"$set": newtoken}
@@ -63,14 +64,12 @@ func GenerateRefreshToken(memberID primitive.ObjectID) *Token {
 		ExpiresAt: time.Now().Local().Add(time.Hour * time.Duration(24)).Unix(),
 	}
     
-
-    // token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(SECRET_KEY))
-    refreshToken, err := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshClaims).SignedString([]byte(SECRET_KEY))
+	refreshToken, err := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshClaims).SignedString([]byte(SECRET_KEY))
 	if err != nil {
         log.Panic(err)
         
     }
-	// token := "your_token_generation_logic_here"
+	
 	expiresAt :=  time.Now().Local().Add(time.Hour * time.Duration(24)) // Example: Token expires in 24 hours
 
 	return &Token{
@@ -93,10 +92,6 @@ func ValidateRefreshToken(tokenStr string) (*Token, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	// if token.ExpiresAt.Before(time.Now()) {
-	// 	return nil, mongo.ErrEmptySlice
-	// }
 
 	return &token, nil
 }
