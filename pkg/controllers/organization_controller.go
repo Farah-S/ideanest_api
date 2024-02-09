@@ -82,13 +82,13 @@ func GetAllOrganizations() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var _, cancel = context.WithTimeout(context.Background(), 100*time.Second)
        
- //pass these options to the Find method
-    findOptions := options.Find()
-    
-    //Define an array in which you can store the decoded documents
-    // var results []Member
+		//pass these options to the Find method
+		findOptions := options.Find()
+		
+		//Define an array in which you can store the decoded documents
+		// var results []Member
 
-    //Passing the bson.D{{}} as the filter matches  documents in the collection
+		//Passing the bson.D{{}} as the filter matches  documents in the collection
     	orgs, err := orgCollection.Find(context.TODO(), bson.D{{}}, findOptions)
 
 		// orgs, err :=orgCollection.Find(ctx,nil)
@@ -120,9 +120,10 @@ func GetAllOrganizations() gin.HandlerFunc {
 	}
 }
 
-func getMembersOfOrg(ids []primitive.ObjectID, c *gin.Context)  []models.OrganizationMember{
+func getMembersOfOrg(ids []primitive.ObjectID, c *gin.Context)  []MemberResponse{
 	// Define a slice to store documents
-	var results []models.OrganizationMember
+	// var members []models.OrganizationMember
+	var results []MemberResponse
 
 	// Define the filter to find documents with IDs in the list
 	filter := bson.M{"_id": bson.M{"$in": ids}}
@@ -139,8 +140,11 @@ func getMembersOfOrg(ids []primitive.ObjectID, c *gin.Context)  []models.Organiz
 	if err := cursor.All(context.Background(), &results); err != nil {
 		// panic(err)
         c.JSON(http.StatusBadRequest, MessageResponse{Message: "138"+err.Error()})
-
 	}
+
+	// for i := 0; i < len(members); i++ {
+	// 	results = append(results, MemberResponse{Name: members[i].Name, Email: members[i].Email, AccessLevel: members[i].AccessLevel})
+	// }
 	return results
 
 }
