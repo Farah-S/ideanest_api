@@ -167,9 +167,9 @@ func GenerateAccessToken(memberID primitive.ObjectID) string{
 var tokenCollection *mongo.Collection = repository.GetCollection(repository.DB, "tokens", "api_db")
 
 func GenerateRefreshToken(memberID primitive.ObjectID) *Token {
-	 refreshClaims :=  jwt.StandardClaims{
-            ExpiresAt: time.Now().Local().Add(time.Hour * time.Duration(24)).Unix(),
-        }
+	refreshClaims :=  jwt.StandardClaims{
+		ExpiresAt: time.Now().Local().Add(time.Hour * time.Duration(24)).Unix(),
+	}
     
 
     // token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(SECRET_KEY))
@@ -202,9 +202,9 @@ func ValidateRefreshToken(tokenStr string) (*Token, error) {
 		return nil, err
 	}
 
-	if token.ExpiresAt.Before(time.Now()) {
-		return nil, mongo.ErrNoDocuments
-	}
+	// if token.ExpiresAt.Before(time.Now()) {
+	// 	return nil, mongo.ErrEmptySlice
+	// }
 
 	return &token, nil
 }

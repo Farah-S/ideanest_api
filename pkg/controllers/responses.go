@@ -11,9 +11,9 @@ type MessageResponse struct{
 }
 
 type TokensResponse struct{
-	Message	string
-	AccessToken	string
-	RefreshToken	string
+	Message	string	`json:"message" form:"message"`
+	AccessToken	string	`json:"access_token" form:"access_token"`
+	RefreshToken	string	`json:"refresh_token" form:"refresh_token"`
 }
 
 type IDResponse struct{

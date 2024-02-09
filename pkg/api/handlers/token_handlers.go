@@ -1,30 +1,31 @@
 package handlers
 
 import (
+	// "context"
+	// "log"
 	"net/http"
 
+	// "github.com/example/golang-test/pkg/controllers"
+	"github.com/example/golang-test/pkg/controllers"
 	"github.com/example/golang-test/pkg/utils"
 	"github.com/gin-gonic/gin"
 )
 
-func refreshTokenHandler(c *gin.Context) {
-	// Parse the refresh token from the request
-	refreshToken := c.PostForm("refresh_token")
+func RefreshTokenHandler() gin.HandlerFunc{
+    return func(c *gin.Context) {
+		
+		refresh_token:=c.Query("refresh_token")
+		
+		token, err := utils.ValidateRefreshToken(refresh_token)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"refresh_token": err.Error()})
+			return
+		}
 
-	// Check if the refresh token is valid
-	token, err := utils.ValidateRefreshToken(refreshToken)
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid refresh token"})
-		return
+		// Generate a new refresh token
+		newToken := utils.UpdateRefreshToken(token.ID,token.MemberID)
+		accessToken:=utils.GenerateAccessToken(token.MemberID)
+
+		c.JSON(http.StatusOK, controllers.TokensResponse{AccessToken: accessToken, RefreshToken: newToken,Message: "Success"})
 	}
-
-	// Generate a new refresh token
-	newToken := utils.GenerateRefreshToken(token.MemberID)
-
-	// Store the new refresh token in the database
-	utils.InsertToken(newToken)
-
-	c.JSON(http.StatusOK, gin.H{
-		"refresh_token": newToken.Token,
-	})
 }

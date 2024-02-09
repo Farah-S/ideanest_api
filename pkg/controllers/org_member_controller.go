@@ -126,9 +126,10 @@ func GetUser() gin.HandlerFunc {
 			return
         }
 		token:=utils.GenerateAccessToken(foundUser.Id)
-        refreshToken:=utils.UpdateRefreshToken(foundToken.ID, foundUser.Id)
+		
+        // refreshToken:=utils.UpdateRefreshToken(foundToken.ID, foundUser.Id)
 
-		c.JSON(http.StatusOK, TokensResponse{Message: "Success", AccessToken: token, RefreshToken: refreshToken})
+		c.JSON(http.StatusOK, TokensResponse{Message: "Success", AccessToken: token, RefreshToken: foundToken.Token})
 
         // c.JSON(http.StatusOK, foundUser)
 		// c.Redirect(http.StatusOK, "/api")

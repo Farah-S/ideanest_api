@@ -3,7 +3,7 @@ package routes
 import (
 	"net/http"
 
-	// "github.com/example/golang-test/pkg/api/handlers"
+	"github.com/example/golang-test/pkg/api/handlers"
 	"github.com/example/golang-test/pkg/controllers"
 
 	"github.com/gin-gonic/gin"
@@ -40,7 +40,7 @@ func SignInRoute(router *gin.Engine)  {
 		c.HTML(http.StatusOK, "signin.html", nil)
 	}) //add this
 	router.POST("/signin", controllers.GetUser()) //add this
-	// router.POST("/refresh", refreshTokenHandler)
+	router.POST("/refresh-token", handlers.RefreshTokenHandler())
 }
 
 func IndexRoute(router *gin.Engine, port string){
