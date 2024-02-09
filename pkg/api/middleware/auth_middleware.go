@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/example/golang-test/pkg/controllers"
+	"github.com/example/golang-test/pkg/utils"
 	"github.com/gin-gonic/gin"
 )
 func AuthMiddleware() gin.HandlerFunc {
@@ -18,7 +18,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		}
 
 		// Validate the token (replace with your token validation logic)
-		var user controllers.SignedInUser
+		var user utils.SignedInUser
 		if err := json.Unmarshal([]byte(userJSON), &user); err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
 			c.Abort()

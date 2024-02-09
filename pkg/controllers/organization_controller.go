@@ -3,14 +3,12 @@ package controllers
 import (
 	"context"
 	"fmt"
-	// "log"
 	"net/http"
 	"time"
 
 	"github.com/example/golang-test/pkg/database/mongodb/models"
 	"github.com/example/golang-test/pkg/database/mongodb/repository"
-
-	// "github.com/example/golang-test/pkg/utils"
+	"github.com/example/golang-test/pkg/utils"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -58,7 +56,7 @@ func CreateOrg() gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, MessageResponse{Message: "organization already exists"})
 			return
 		}
-		user:=currentUser.(SignedInUser)
+		user:=currentUser.(utils.SignedInUser)
 		ids:=[]primitive.ObjectID{user.ID}
 		newOrg := models.Organization{
 			Id:          primitive.NewObjectID(),
@@ -178,6 +176,48 @@ func getMembersOfOrg(ids []primitive.ObjectID, c *gin.Context)  []MemberResponse
 	// 	results = append(results, MemberResponse{Name: members[i].Name, Email: members[i].Email, AccessLevel: members[i].AccessLevel})
 	// }
 	return results
+}
+
+func UpdateOrganization() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		jsonid:=c.Param("organization_id") 
+		id, err:=primitive.ObjectIDFromHex(jsonid)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		if(!utils.IsMember(id,c)){
+			c.JSON(http.StatusUnauthorized, "You are not a member thus can't update")
+			return
+		}
+		name:=c.Query("name")
+		description:=c.Query("description") 
+		// Define filter to match the document to update
+		filter := bson.M{"_id": id}
+		fmt.Println(name)
+		fmt.Println(description)
+		fmt.Println(id)
+		// Define update document to specify the modifications
+		update := bson.M{
+			"$set": bson.M{
+				"name": name,
+				"description": description,
+			},
+		}
+
+		// Perform the update operation
+		res, err := orgCollection.UpdateOne(context.Background(), filter, update)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		if(res.ModifiedCount==0){
+			c.JSON(http.StatusBadRequest, "error updating")
+			return
+		}
+		c.JSON(http.StatusOK, OneOrgResponse{Id: id, Name: name,Description: description})
+
+	}
 }
 
 func InviteUser()  gin.HandlerFunc{

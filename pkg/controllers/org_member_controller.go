@@ -15,21 +15,12 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	// "go.mongodb.org/mongo-driver/mongo/options"
 )
 var tokenCollection *mongo.Collection = repository.GetCollection(repository.DB, "tokens", "api_db")
 var memberCollection *mongo.Collection = repository.GetCollection(repository.DB, "organization_members", "api_db")
 var validate = validator.New()
 
-// SignedDetails
-type SignedInUser struct {
-    Email      string
-    Name 	string
-    ID        primitive.ObjectID
-	AccessLevel string
-	BearerToken string
-	Invites		[]primitive.ObjectID
-}
+
 
 func CreateUser() gin.HandlerFunc {
     return func(c *gin.Context) {
@@ -141,7 +132,7 @@ func GetUser() gin.HandlerFunc {
 		
         // refreshToken:=utils.UpdateRefreshToken(foundToken.ID, foundUser.Id)
 		// Serialize the user object to JSON
-		cookieUser:=SignedInUser{
+		cookieUser:=utils.SignedInUser{
 			ID: foundUser.Id,
 			Name: foundUser.Name,
 			Email: foundUser.Email,
