@@ -30,8 +30,12 @@ func OrganizationRoutes(router *gin.Engine)  {
 	router.GET("/api/create-org", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "create_org.html", nil)
 	})
+	// router.GET("/api/find-organization", func(c *gin.Context) {
+	// 	c.HTML(http.StatusOK, "find_org.html", nil)
+	// })
 
 	router.POST("/organization", middleware.AuthMiddleware(),controllers.CreateOrg())
+	router.GET("/organization/:organization_id", middleware.AuthMiddleware(),controllers.GetOrganization())
 	router.GET("/organization", middleware.AuthMiddleware(),controllers.GetAllOrganizations())
 
 	// router.GET("/organization", func(c *gin.Context) {

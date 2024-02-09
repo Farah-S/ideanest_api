@@ -78,6 +78,41 @@ func CreateOrg() gin.HandlerFunc {
 	}
 }
 
+func GetOrganization() gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+		var id=c.Param("organization_id")
+		fmt.Println(id)
+		var org models.Organization
+		//pass these options to the Find method
+		objectID, err := primitive.ObjectIDFromHex(id)
+		defer cancel()
+		if err != nil {
+            // c.JSON(http.StatusInternalServerError, gin.H{"error": "incorrect email"})
+            c.JSON(http.StatusBadRequest, MessageResponse{Message: err.Error()})
+			return
+        }
+		filter := bson.M{"_id": objectID}
+		err = orgCollection.FindOne(ctx, filter).Decode(&org)
+
+		// orgs, err :=orgCollection.Find(ctx,nil)
+        //  memberCollection.FindOne(ctx, bson.M{"email": user.Email}).Decode(&foundUser)
+        if err != nil {
+            // c.JSON(http.StatusInternalServerError, gin.H{"error": "incorrect email"})
+            c.JSON(http.StatusBadRequest, MessageResponse{Message: err.Error()})
+			return
+        }
+		
+		response:=OneOrgResponse{Id: org.Id,
+			Name: org.Name, 
+			Description: org.Description, 
+			OrganizationMembers:getMembersOfOrg(org.OrganizationMembersIDs,c)}
+		
+		c.JSON(http.StatusOK, response)
+	}
+}
+
 func GetAllOrganizations() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var _, cancel = context.WithTimeout(context.Background(), 100*time.Second)
@@ -96,13 +131,13 @@ func GetAllOrganizations() gin.HandlerFunc {
         defer cancel()
         if err != nil {
             // c.JSON(http.StatusInternalServerError, gin.H{"error": "incorrect email"})
-            c.JSON(http.StatusBadRequest, MessageResponse{Message: "98"+err.Error()})
+            c.JSON(http.StatusBadRequest, MessageResponse{Message: err.Error()})
 			return
         }
 		var results []models.Organization
 		if err := orgs.All(context.Background(), &results); err != nil {
 			// panic(err)
-	        c.JSON(http.StatusBadRequest, MessageResponse{Message: "104"+err.Error()})
+	        c.JSON(http.StatusBadRequest, MessageResponse{Message: err.Error()})
 
 		}
 		response:=[]OneOrgResponse{}
@@ -131,7 +166,7 @@ func getMembersOfOrg(ids []primitive.ObjectID, c *gin.Context)  []MemberResponse
 	// Find documents in the collection that match the filter
 	cursor, err := memberCollection.Find(context.Background(), filter)
 	if err != nil {
-        c.JSON(http.StatusBadRequest, MessageResponse{Message: "130"+err.Error()})
+        c.JSON(http.StatusBadRequest, MessageResponse{Message: err.Error()})
 
 		// panic(err)
 	}
@@ -139,7 +174,7 @@ func getMembersOfOrg(ids []primitive.ObjectID, c *gin.Context)  []MemberResponse
 	// Iterate over the cursor and decode each document into the slice
 	if err := cursor.All(context.Background(), &results); err != nil {
 		// panic(err)
-        c.JSON(http.StatusBadRequest, MessageResponse{Message: "138"+err.Error()})
+        c.JSON(http.StatusBadRequest, MessageResponse{Message: err.Error()})
 	}
 
 	// for i := 0; i < len(members); i++ {
