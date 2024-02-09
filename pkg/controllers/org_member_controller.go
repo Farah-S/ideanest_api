@@ -14,10 +14,9 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 	// "go.mongodb.org/mongo-driver/mongo/options"
 )
-
+var tokenCollection *mongo.Collection = repository.GetCollection(repository.DB, "tokens", "api_db")
 var memberCollection *mongo.Collection = repository.GetCollection(repository.DB, "organization_members", "api_db")
 var validate = validator.New()
 
@@ -39,20 +38,19 @@ func CreateUser() gin.HandlerFunc {
             return
         }
 		
-		// Create a unique index on the 'email' field
-		_, err := memberCollection.Indexes().CreateOne(
-			ctx,
-			mongo.IndexModel{
-				Keys:    bson.M{"email": 1},
-				Options: options.Index().SetUnique(true),
-			},
-		)
+		filter := bson.M{"email": user.Email}
 
-		if err != nil {
+		// Perform a find operation to check if the email exists
+		var existingUser models.OrganizationMember
+		err := memberCollection.FindOne(ctx, filter).Decode(&existingUser)
+	
+		if err != mongo.ErrNoDocuments {
 			// c.Redirect(http.StatusSeeOther,"/api/signup")
 			c.JSON(http.StatusInternalServerError, MessageResponse{Message: "email already exists"})
 			return
-		}
+		} 
+
+		
 
 		hashedPass := user.Password
 		hashedPass, err = utils.HashPassword(hashedPass)
@@ -75,7 +73,14 @@ func CreateUser() gin.HandlerFunc {
             c.JSON(http.StatusInternalServerError,  MessageResponse{Message: "insert error"})
             return
         }
-		
+
+        refreshToken:= utils.GenerateRefreshToken(user.Id)
+
+		_, err = tokenCollection.InsertOne(ctx, refreshToken)
+        if err != nil {
+            c.JSON(http.StatusInternalServerError,  MessageResponse{Message: "insert error"})
+            return
+        }
         c.JSON(http.StatusCreated,  MessageResponse{Message: "success"})
 		c.Redirect(http.StatusSeeOther,"/api")
     }
@@ -87,31 +92,45 @@ func GetUser() gin.HandlerFunc {
         var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
         var user models.OrganizationMember
         var foundUser models.OrganizationMember
+        var foundToken utils.Token
 
         if err := c.ShouldBind(&user); err != nil {
-            c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-            return
+            // c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+            c.JSON(http.StatusBadRequest, TokensResponse{Message: "error "+err.Error(), AccessToken: "", RefreshToken: ""})
+        	defer cancel()
+			return
         }
 
         err := memberCollection.FindOne(ctx, bson.M{"email": user.Email}).Decode(&foundUser)
         defer cancel()
         if err != nil {
-            c.JSON(http.StatusInternalServerError, gin.H{"error": "incorrect email"})
-            return
+            // c.JSON(http.StatusInternalServerError, gin.H{"error": "incorrect email"})
+            c.JSON(http.StatusBadRequest, TokensResponse{Message: "incorrect email "+err.Error(), AccessToken: "", RefreshToken: ""})
+			return
         }
 
         passwordIsValid := utils.CheckPasswordHash(user.Password, foundUser.Password)
         defer cancel()
         if passwordIsValid != true {
-            c.JSON(http.StatusInternalServerError, "incorrect password")
-            return
+            // c.JSON(http.StatusInternalServerError, "incorrect password")
+            c.JSON(http.StatusBadRequest, TokensResponse{Message: "incorrect password "+err.Error(), AccessToken: "", RefreshToken: ""})
+			return
         }
 
-        token, refreshToken, _ := utils.GenerateAllTokens(*&foundUser.Email, *&foundUser.Name, foundUser.Id, foundUser.AccessLevel)
+        // token, refreshToken, _ := utils.GenerateAllTokens(*&foundUser.Email, *&foundUser.Name, foundUser.Id, foundUser.AccessLevel)
+		err = tokenCollection.FindOne(ctx, bson.M{"member_id": foundUser.Id}).Decode(&foundToken)
+        defer cancel()
+        if err != nil {
+            // c.JSON(http.StatusInternalServerError, gin.H{"error": "incorrect email"})
+            c.JSON(http.StatusBadRequest, TokensResponse{Message: "refresh token error "+err.Error(), AccessToken: "", RefreshToken: foundToken.Token})
+			return
+        }
+		token:=utils.GenerateAccessToken(foundUser.Id)
+        refreshToken:=utils.UpdateRefreshToken(foundToken.ID, foundUser.Id)
 
-        utils.UpdateAllTokens(token, refreshToken, foundUser.Id, foundUser.AccessLevel)
+		c.JSON(http.StatusOK, TokensResponse{Message: "Success", AccessToken: token, RefreshToken: refreshToken})
 
         // c.JSON(http.StatusOK, foundUser)
-		c.Redirect(http.StatusOK, "/api")
+		// c.Redirect(http.StatusOK, "/api")
     }
 }

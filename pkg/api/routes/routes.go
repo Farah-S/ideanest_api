@@ -40,6 +40,7 @@ func SignInRoute(router *gin.Engine)  {
 		c.HTML(http.StatusOK, "signin.html", nil)
 	}) //add this
 	router.POST("/signin", controllers.GetUser()) //add this
+	// router.POST("/refresh", refreshTokenHandler)
 }
 
 func IndexRoute(router *gin.Engine, port string){
