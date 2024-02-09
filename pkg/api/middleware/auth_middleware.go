@@ -1,14 +1,9 @@
 package middleware
 
 import (
-	// "fmt"
 	"encoding/json"
 	"net/http"
-	// "strings"
 
-	// helper "user-athentication-golang/helpers"
-
-	// "github.com/example/golang-test/pkg/utils"
 	"github.com/example/golang-test/pkg/controllers"
 	"github.com/gin-gonic/gin"
 )
@@ -17,7 +12,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		// Retrieve the token from the request cookie
 		userJSON, err := c.Cookie("user")
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized please signin"})
 			c.Abort()
 			return
 		}

@@ -19,6 +19,7 @@ func CreateOrg() gin.HandlerFunc {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		var org models.Organization
 		var currentUser, bl = c.Get("user")
+		
 		if !bl{
 			c.JSON(http.StatusBadRequest, MessageResponse{Message: "please log in"})
 			return
@@ -61,13 +62,13 @@ func CreateOrg() gin.HandlerFunc {
 			Description: org.Description,
 		}
 
-		_, err = orgCollection.InsertOne(ctx, newOrg)
+		res, err := orgCollection.InsertOne(ctx, newOrg)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, MessageResponse{Message: "insert error"})
 			return
 		}
 
-		c.JSON(http.StatusCreated, IDResponse{OrganizationID: "success"})
+		c.JSON(http.StatusCreated, IDResponse{OrganizationID: res.InsertedID.(primitive.ObjectID)})
 		c.Redirect(http.StatusSeeOther, "/api")
 	}
 }
