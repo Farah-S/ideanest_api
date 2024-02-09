@@ -20,17 +20,17 @@ func Authentication() gin.HandlerFunc {
             return
         }
 
-        claims, err := utils.ValidateToken(clientToken)
-        if err != "" {
+        claims, err := utils.ValidateRefreshToken(clientToken)
+        if err != nil {
             c.JSON(http.StatusInternalServerError, gin.H{"error": err})
             c.Abort()
             return
         }
 
-        c.Set("email", claims.Email)
-        c.Set("name", claims.Name)
+        // c.Set("email", claims.Email)
+        // c.Set("name", claims.Name)
         c.Set("id", claims.ID)
-        c.Set("access_level", claims.AccessLevel)
+        // c.Set("access_level", claims.AccessLevel)
 
         c.Next()
 

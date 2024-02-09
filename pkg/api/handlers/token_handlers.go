@@ -1,11 +1,8 @@
 package handlers
 
 import (
-	// "context"
-	// "log"
 	"net/http"
 
-	// "github.com/example/golang-test/pkg/controllers"
 	"github.com/example/golang-test/pkg/controllers"
 	"github.com/example/golang-test/pkg/utils"
 	"github.com/gin-gonic/gin"
