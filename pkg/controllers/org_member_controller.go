@@ -11,8 +11,10 @@ import (
 	"github.com/example/golang-test/pkg/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	// "go.mongodb.org/mongo-driver/mongo/options"
 )
 
@@ -37,8 +39,23 @@ func CreateUser() gin.HandlerFunc {
             return
         }
 		
+		// Create a unique index on the 'email' field
+		_, err := memberCollection.Indexes().CreateOne(
+			ctx,
+			mongo.IndexModel{
+				Keys:    bson.M{"email": 1},
+				Options: options.Index().SetUnique(true),
+			},
+		)
+
+		if err != nil {
+			// c.Redirect(http.StatusSeeOther,"/api/signup")
+			c.JSON(http.StatusInternalServerError, MessageResponse{Message: "email already exists"})
+			return
+		}
+
 		hashedPass := user.Password
-		hashedPass, err := utils.HashPassword(hashedPass)
+		hashedPass, err = utils.HashPassword(hashedPass)
         
 		if err != nil {
             c.JSON(http.StatusInternalServerError, MessageResponse{Message: "hash error"})
