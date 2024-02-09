@@ -19,13 +19,13 @@ func ConnectDB() *mongo.Client {
 	client, err := mongo.Connect(ctx,options.Client().ApplyURI(config.DBUri))
 	
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
 
 	//ping the database
 	err = client.Ping(ctx, nil)
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
 	fmt.Println("Connected to MongoDB")
 	return client
