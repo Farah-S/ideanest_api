@@ -13,15 +13,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-// SignedDetails
-type SignedInDetails struct {
-    Email      string
-    Name 	string
-    ID        primitive.ObjectID
-	AccessLevel string
-    jwt.StandardClaims
-}
-
 var memberCollection *mongo.Collection = repository.GetCollection(repository.DB, "organization_members", "api_db")
 
 var SECRET_KEY string = os.Getenv("SECRET_KEY")

@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"encoding/json"
 	// "log"
 	"net/http"
 	"time"
@@ -19,6 +20,15 @@ import (
 var tokenCollection *mongo.Collection = repository.GetCollection(repository.DB, "tokens", "api_db")
 var memberCollection *mongo.Collection = repository.GetCollection(repository.DB, "organization_members", "api_db")
 var validate = validator.New()
+
+// SignedDetails
+type SignedInUser struct {
+    Email      string
+    Name 	string
+    ID        primitive.ObjectID
+	AccessLevel string
+	BearerToken string
+}
 
 func CreateUser() gin.HandlerFunc {
     return func(c *gin.Context) {
@@ -128,6 +138,22 @@ func GetUser() gin.HandlerFunc {
 		token:=utils.GenerateAccessToken(foundUser.Id)
 		
         // refreshToken:=utils.UpdateRefreshToken(foundToken.ID, foundUser.Id)
+		// Serialize the user object to JSON
+		cookieUser:=SignedInUser{
+			ID: foundUser.Id,
+			Name: foundUser.Name,
+			Email: foundUser.Email,
+			BearerToken: token,
+			AccessLevel: foundUser.AccessLevel,
+		}
+		userJSON, err := json.Marshal(cookieUser)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to serialize user data"})
+			return
+		}
+
+		// Save the serialized user data in a cookie
+		c.SetCookie("user", string(userJSON), 3600, "/", "", false, false)
 
 		c.JSON(http.StatusOK, TokensResponse{Message: "Success", AccessToken: token, RefreshToken: foundToken.Token})
 

@@ -24,8 +24,8 @@ func (r *Organization) Marshal() ([]byte, error) {
 
 type Organization struct {
 	Id       primitive.ObjectID `bson:"_id" json:"_id,omitempty"`
-	Name                string               `json:"name,omitempty"  validate:"required"`
-	Description         string               `json:"description,omitempty"  validate:"required"`
-	OrganizationMembersIDs []primitive.ObjectID `json:"organization_members,omitempty"  validate:"required"`
+	Name                string               `form:"name" json:"name,omitempty"  validate:"required"`
+	Description         string               `form:"description" json:"description,omitempty"  validate:"required"`
+	OrganizationMembersIDs []primitive.ObjectID `json:"organization_members,omitempty"`
 }
 

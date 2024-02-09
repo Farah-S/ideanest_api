@@ -1,38 +1,40 @@
 package middleware
 
 import (
-	"fmt"
+	// "fmt"
+	"encoding/json"
 	"net/http"
+	// "strings"
 
 	// helper "user-athentication-golang/helpers"
 
-	"github.com/example/golang-test/pkg/utils"
+	// "github.com/example/golang-test/pkg/utils"
+	"github.com/example/golang-test/pkg/controllers"
 	"github.com/gin-gonic/gin"
 )
+func AuthMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Retrieve the token from the request cookie
+		userJSON, err := c.Cookie("user")
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+			c.Abort()
+			return
+		}
 
-// Authz validates token and authorizes users
-func Authentication() gin.HandlerFunc {
-    return func(c *gin.Context) {
-        clientToken := c.Request.Header.Get("token")
-        if clientToken == "" {
-            c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("No Authorization header provided")})
-            c.Abort()
-            return
-        }
+		// Validate the token (replace with your token validation logic)
+		var user controllers.SignedInUser
+		if err := json.Unmarshal([]byte(userJSON), &user); err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+			c.Abort()
+			return
+		}
 
-        claims, err := utils.ValidateRefreshToken(clientToken)
-        if err != nil {
-            c.JSON(http.StatusInternalServerError, gin.H{"error": err})
-            c.Abort()
-            return
-        }
+		// Set user data in the request context for later use
+		c.Set("user", user)
 
-        // c.Set("email", claims.Email)
-        // c.Set("name", claims.Name)
-        c.Set("id", claims.ID)
-        // c.Set("access_level", claims.AccessLevel)
-
-        c.Next()
-
-    }
+		// Continue with the next middleware or route handler
+		c.Next()
+	
+	}
 }
