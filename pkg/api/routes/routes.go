@@ -37,6 +37,7 @@ func OrganizationRoutes(router *gin.Engine)  {
 	router.POST("/organization/:organization_id/invite", middleware.AuthMiddleware(),controllers.InviteUser())
 	router.POST("/organization", middleware.AuthMiddleware(),controllers.CreateOrg())
 	router.PUT("/organization/:organization_id", middleware.AuthMiddleware(),controllers.UpdateOrganization())
+	router.DELETE("/organization/:organization_id", middleware.AuthMiddleware(),controllers.DeleteOrganization())
 	router.GET("/organization/:organization_id", middleware.AuthMiddleware(),controllers.GetOrganization())
 	router.GET("/organization", middleware.AuthMiddleware(),controllers.GetAllOrganizations())
 

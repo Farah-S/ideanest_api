@@ -194,9 +194,7 @@ func UpdateOrganization() gin.HandlerFunc {
 		description:=c.Query("description") 
 		// Define filter to match the document to update
 		filter := bson.M{"_id": id}
-		fmt.Println(name)
-		fmt.Println(description)
-		fmt.Println(id)
+
 		// Define update document to specify the modifications
 		update := bson.M{
 			"$set": bson.M{
@@ -216,6 +214,33 @@ func UpdateOrganization() gin.HandlerFunc {
 			return
 		}
 		c.JSON(http.StatusOK, OneOrgResponse{Id: id, Name: name,Description: description})
+
+	}
+}
+
+
+func DeleteOrganization() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		jsonid:=c.Param("organization_id") 
+		id, err:=primitive.ObjectIDFromHex(jsonid)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		if(!utils.IsMember(id,c)){
+			c.JSON(http.StatusUnauthorized, "You are not a member thus can't delete")
+			return
+		}
+		// Define filter to match the document to update
+		filter := bson.M{"_id": id}
+		
+		// Perform the update operation
+		_, err = orgCollection.DeleteOne(context.Background(), filter)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, MessageResponse{Message: "Success"})
 
 	}
 }
