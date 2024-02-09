@@ -4,9 +4,10 @@
 //    organizationMember, err := UnmarshalOrganizationMember(bytes)
 //    bytes, err = organizationMember.Marshal()
 
-package main
+package models
 
 import "encoding/json"
+import "go.mongodb.org/mongo-driver/bson/primitive"
 
 func UnmarshalOrganizationMember(data []byte) (OrganizationMember, error) {
 	var r OrganizationMember
@@ -19,13 +20,12 @@ func (r *OrganizationMember) Marshal() ([]byte, error) {
 }
 
 type OrganizationMember struct {
-	ID          ID     `json:"_id"`
-	Name        string `json:"name"`
-	Email       string `json:"email"`
-	Password    string `json:"password"`
-	AccessLevel string `json:"access_level"`
+	Id       primitive.ObjectID `bson:"_id" json:"_id,omitempty"`
+	Name        string `form:"name,omitempty" json:"name,omitempty" validate:"required"`
+	Email       string `form:"email,omitempty" json:"email,omitempty" validate:"required"`
+	Password    string `form:"password,omitempty" json:"password,omitempty" validate:"required"`
+	AccessLevel string `form:"access_level" json:"access_level" bson:"access_level"`
+	Invites []primitive.ObjectID `json:"invites,omitempty"`
 }
 
-type ID struct {
-	OID string `json:"$oid"`
-}
+
