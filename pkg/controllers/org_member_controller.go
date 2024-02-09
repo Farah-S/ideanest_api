@@ -4,7 +4,7 @@ import (
     "context"
     "net/http"
     "time"
-	
+
 	"github.com/example/golang-test/pkg/database/mongodb/models"
 	"github.com/example/golang-test/pkg/database/mongodb/repository"
 	"github.com/example/golang-test/pkg/utils"
@@ -60,5 +60,6 @@ func CreateUser() gin.HandlerFunc {
         }
 		
         c.JSON(http.StatusCreated,  MessageResponse{Message: "success"})
+		c.Redirect(http.StatusSeeOther,"/api")
     }
 }

@@ -71,6 +71,6 @@ func main() {
 		panic(err)
 	}
 	fmt.Println(value)
-	
 	routes.IndexRoute(server,config.Port)
+	routes.StartApp(server)
 }
