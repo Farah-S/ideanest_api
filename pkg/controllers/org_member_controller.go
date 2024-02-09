@@ -80,3 +80,38 @@ func CreateUser() gin.HandlerFunc {
 		c.Redirect(http.StatusSeeOther,"/api")
     }
 }
+
+
+func GetUser() gin.HandlerFunc {
+    return func(c *gin.Context) {
+        var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+        var user models.OrganizationMember
+        var foundUser models.OrganizationMember
+
+        if err := c.ShouldBind(&user); err != nil {
+            c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+            return
+        }
+
+        err := memberCollection.FindOne(ctx, bson.M{"email": user.Email}).Decode(&foundUser)
+        defer cancel()
+        if err != nil {
+            c.JSON(http.StatusInternalServerError, gin.H{"error": "incorrect email"})
+            return
+        }
+
+        passwordIsValid := utils.CheckPasswordHash(user.Password, foundUser.Password)
+        defer cancel()
+        if passwordIsValid != true {
+            c.JSON(http.StatusInternalServerError, "incorrect password")
+            return
+        }
+
+        token, refreshToken, _ := utils.GenerateAllTokens(*&foundUser.Email, *&foundUser.Name, foundUser.Id, foundUser.AccessLevel)
+
+        utils.UpdateAllTokens(token, refreshToken, foundUser.Id, foundUser.AccessLevel)
+
+        // c.JSON(http.StatusOK, foundUser)
+		c.Redirect(http.StatusOK, "/api")
+    }
+}

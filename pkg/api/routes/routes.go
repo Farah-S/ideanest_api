@@ -15,8 +15,8 @@ func StartApp(router *gin.Engine)  {
 	// 	c.HTML(http.StatusOK, "index.html", nil)
 	// })
 
-	SignUpFormRoute(router)
-
+	SignUpRoute(router)
+	SignInRoute(router)
 	// r.GET("/success", func(c *gin.Context) {
 	// 	c.HTML(http.StatusOK, "success.html", nil)
 	// })
@@ -24,18 +24,22 @@ func StartApp(router *gin.Engine)  {
 	router.Run(":8080")
 }
 
-func SignUpFormRoute(router *gin.Engine)  {
+func SignUpRoute(router *gin.Engine)  {
     router.GET("/api/signup", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "signup.html", nil)
 	}) //add this
-	SignUpRoute(router)
-	router.GET("/success", func(c *gin.Context) {
-        c.HTML(http.StatusOK, "index.html", nil)
-    })
+	router.POST("/signup", controllers.CreateUser()) //add this
+	// SignUpRoute(router)
+	// router.GET("/success", func(c *gin.Context) {
+    //     c.HTML(http.StatusOK, "index.html", nil)
+    // })
 }
 
-func SignUpRoute(router *gin.Engine)  {
-    router.POST("/signup", controllers.CreateUser()) //add this
+func SignInRoute(router *gin.Engine)  {
+	 router.GET("/api/signin", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "signin.html", nil)
+	}) //add this
+	router.POST("/signin", controllers.GetUser()) //add this
 }
 
 func IndexRoute(router *gin.Engine, port string){
