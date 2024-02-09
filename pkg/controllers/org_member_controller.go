@@ -149,7 +149,9 @@ func GetUser() gin.HandlerFunc {
 			AccessLevel: foundUser.AccessLevel,
 			Invites: foundUser.Invites,
 		}
+
 		userJSON, err := json.Marshal(cookieUser)
+		
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to serialize user data"})
 			return
@@ -163,4 +165,25 @@ func GetUser() gin.HandlerFunc {
         // c.JSON(http.StatusOK, foundUser)
 		// c.Redirect(http.StatusOK, "/api")
     }
+}
+
+func UpdateMember(member models.OrganizationMember, c *gin.Context)  {
+	
+	// Define filter to match the document to update
+	filter := bson.M{"_id": member.Id}
+
+	// Define update document to specify the modifications
+	update := bson.M{
+		"$set": bson.M{
+			"invites": member.Invites,
+		},
+	}
+
+	// Perform the update operation
+	_, err := memberCollection.UpdateOne(context.Background(), filter, update)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	}
+    // c.JSON(http.StatusOK, MessageResponse{Message: "Success"})
+
 }

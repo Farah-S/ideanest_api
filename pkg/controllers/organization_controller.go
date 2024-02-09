@@ -156,14 +156,12 @@ func GetAllOrganizations() gin.HandlerFunc {
 }
 
 func getMembersOfOrg(ids []primitive.ObjectID, c *gin.Context)  []MemberResponse{
-	// Define a slice to store documents
+	
 	// var members []models.OrganizationMember
 	var results []MemberResponse
 
-	// Define the filter to find documents with IDs in the list
 	filter := bson.M{"_id": bson.M{"$in": ids}}
 
-	// Find documents in the collection that match the filter
 	cursor, err := memberCollection.Find(context.Background(), filter)
 	if err != nil {
         c.JSON(http.StatusBadRequest, MessageResponse{Message: err.Error()})
@@ -171,7 +169,6 @@ func getMembersOfOrg(ids []primitive.ObjectID, c *gin.Context)  []MemberResponse
 		// panic(err)
 	}
 
-	// Iterate over the cursor and decode each document into the slice
 	if err := cursor.All(context.Background(), &results); err != nil {
 		// panic(err)
         c.JSON(http.StatusBadRequest, MessageResponse{Message: err.Error()})
@@ -181,5 +178,31 @@ func getMembersOfOrg(ids []primitive.ObjectID, c *gin.Context)  []MemberResponse
 	// 	results = append(results, MemberResponse{Name: members[i].Name, Email: members[i].Email, AccessLevel: members[i].AccessLevel})
 	// }
 	return results
+}
 
+func InviteUser()  gin.HandlerFunc{
+    return func(c *gin.Context) {
+		userEmail:=c.Query("user_email")
+		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+		var id=c.Param("organization_id")
+		
+		objectID, err := primitive.ObjectIDFromHex(id)
+		defer cancel()
+		if err != nil {
+            // c.JSON(http.StatusInternalServerError, gin.H{"error": "incorrect email"})
+            c.JSON(http.StatusBadRequest, MessageResponse{Message: err.Error()})
+			return
+        }
+		filter := bson.M{"email": userEmail}
+		var user models.OrganizationMember
+		err = memberCollection.FindOne(ctx, filter).Decode(&user)
+		if err != nil {
+            c.JSON(http.StatusBadRequest, MessageResponse{Message: err.Error()})
+			return
+        }
+		user.Invites = append(user.Invites, objectID)
+		UpdateMember(user,c)
+        c.JSON(http.StatusOK, MessageResponse{Message: "Success"})
+
+	}
 }

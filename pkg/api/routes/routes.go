@@ -34,6 +34,7 @@ func OrganizationRoutes(router *gin.Engine)  {
 	// 	c.HTML(http.StatusOK, "find_org.html", nil)
 	// })
 
+	router.POST("/organization/:organization_id/invite", middleware.AuthMiddleware(),controllers.InviteUser())
 	router.POST("/organization", middleware.AuthMiddleware(),controllers.CreateOrg())
 	router.GET("/organization/:organization_id", middleware.AuthMiddleware(),controllers.GetOrganization())
 	router.GET("/organization", middleware.AuthMiddleware(),controllers.GetAllOrganizations())
