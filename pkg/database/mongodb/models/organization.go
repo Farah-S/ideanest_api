@@ -4,9 +4,13 @@
 //    organization, err := UnmarshalOrganization(bytes)
 //    bytes, err = organization.Marshal()
 
-package main
+package models
 
-import "encoding/json"
+import (
+	"encoding/json"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
 
 func UnmarshalOrganization(data []byte) (Organization, error) {
 	var r Organization
@@ -19,9 +23,9 @@ func (r *Organization) Marshal() ([]byte, error) {
 }
 
 type Organization struct {
-	ID                  ID                   `json:"_id"`
-	Name                string               `json:"name"`
-	Description         string               `json:"description"`
-	OrganizationMembers []OrganizationMember `json:"organization_members"`
+	Id       primitive.ObjectID `json:"id,omitempty"`
+	Name                string               `json:"name,omitempty"  validate:"required"`
+	Description         string               `json:"description,omitempty"  validate:"required"`
+	OrganizationMembers []OrganizationMember `json:"organization_members,omitempty"  validate:"required"`
 }
 
