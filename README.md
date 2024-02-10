@@ -1,5 +1,5 @@
 # Docker container image link
-https://hub.docker.com/repository/docker/farahsk/go_api/general
+https://hub.docker.com/repository/docker/farahsk/go-api/general
 
 # Golang API Application
 
